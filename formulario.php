@@ -1,3 +1,10 @@
+<!-- INCLUIR EL ACHIVO DE CONEXIÓN -->
+
+<?php
+    include('conexion.php');
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +20,21 @@
         
         <h1>Crud con PHP y MySQL</h1>
 
-        <form class="row g-3" action="formulario.php" method="post">
+        
+        
+        
+        <form class="row g-3" action="formulario.php" method="post" enctype="multipart/form-data">
+            
+            
+            <div class="container">
+    
+                <div class="col-md-6">
+                
+                    <label for="">Buscar</label>
+                    <input name="niticcbus" class="form-control" type="text" placeholder="Buscar" >
+                </div>
+            </div>
+            
 
             <div class="col-md-6">
                 <label for="" class="form-label">Identificacion</label>
@@ -45,14 +66,24 @@
             <div class="col-md-6">
                 <label for="" class="form-label">Correo electrónico</label>
                 <input name="correo" placeholder="Ingrese su correo electronico" type="email" class="form-control">
-            </div>    
+            </div>  
+            
+            <div class="col-md-6">
+                <label for="">Imagen</label>
+                <input type="file" name="imagen" class="form-control">
+            </div> 
 
             <div class="col-md-6 mt-4">
+
                 <button name="guardar" type="submit" class="btn btn-primary">Guardar</button>
-                <button type="button" class="btn btn-danger">Eliminar</button>
+
+                <button name="eliminar" type="button" class="btn btn-danger">Eliminar</button>
+
+                <button name="actualizar" type="submit" class="btn btn-secundary">Actualizar</button>
+
+                <button name="listar" type="submit" class="btn btn-primary">listar todos los clientes</button>
 
             </div>
-            
             
 
 
@@ -60,8 +91,11 @@
 
 
         <?php
+        // ------------------------------/
+        // --------------------GUARDAR
+        // ------------------------------/
 
-            if(isset($_POST['guardar']))
+            if(isset($_POST['guardar']))//isset es como el onclick de php, si un elemento está siendo llamado
             {
                 include('conexion.php');
 
@@ -72,15 +106,47 @@
                 $telefono_jaime = $_POST['telefono'];
                 $fecha_jaime = $_POST['fecha'];
                 $correo_jaime = $_POST['correo'];
+                //manejo del archivo
+
+                $imagen = $_FILES['imagen']['name'];
+                $ruta = $_FILES['imagen']['tmp_name'];
+                //enviar al sql
+                $imagen_jaime = 'fotos/'.$imagen;
+                copy($ruta,$imagen_jaime);
                 
                 //CONSULTAA LA BASE DE DATOS
+                //             mysqli_query( $conexion , " INSERT INTO registro ( id, nombre, apellido, telefono, fecha, correo, imagen)
+                //             VALUES( '$id_jaime', '$nombre_jaime' , '$apellido_jaime', '$telefono_jaime', '$fecha_jaime', '$correo_jaime', '$imagen_jaime') " );
 
-                mysqli_query( $conexion , " INSERT INTO registro ( id, nombre, apellido, telefono, fecha, correo)
-                                                          VALUES( '$id_jaime', '$nombre_jaime' , '$apellido_jaime', '$telefono_jaime', '$fecha_jaime', '$correo_jaime') " );
+                // echo "Datos guardados correctamente";  
+                    
+                
+                //VERIFICAR QUE NO EXISTAN VALORES DUPLICADOS PARA EL CAMPO DE ID
 
-                echo "Datos guardados correctamente";                                 
+                $sqlbuscar = " SELECT id FROM registro WHERE id = '$id_jaime'  ";
+
+                if( $resultado = mysqli_query( $conexion , $sqlbuscar ) )
+                {
+                    $numeroregistros = mysqli_num_rows($resultado); //devuelve la cantidad de filas que hay en esa consulta
+                    if($numeroregistros > 0)
+                    {
+                        echo "<script> alert('El id ya existe'); </script>";
+                    }
+                    else
+                    {
+                        mysqli_query( $conexion , " INSERT INTO registro ( id, nombre, apellido, telefono, fecha, correo, imagen)
+                        VALUES( '$id_jaime', '$nombre_jaime' , '$apellido_jaime', '$telefono_jaime', '$fecha_jaime', '$correo_jaime', '$imagen_jaime') " );
+
+                        echo "Datos guardados correctamente";  
+                    }
+                }
 
             }
+
+
+        // ------------------------------/
+        // --------------------GUARDAR
+        // ------------------------------/
 
 
         ?>
